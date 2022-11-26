@@ -1,5 +1,6 @@
-import faiss
 import warnings
+
+import faiss
 
 from utils.constants import *
 
@@ -26,8 +27,10 @@ class DataStore(object):
     clear
 
     """
-    def __init__(self, capacity, strategy, dimension, rng):
-        self.capacity = capacity
+
+    def __init__(self, capacity_frac, strategy, dimension, rng):
+        self.capacity_frac = capacity_frac
+        self.capacity = 0
         self.strategy = strategy
         self.dimension = dimension
         self.rng = rng
@@ -57,10 +60,11 @@ class DataStore(object):
         :type train_labels: numpy.array of shape (n_samples,)
 
         """
-        if self.capacity <= 0:
+        if self.capacity_frac <= 0:
             return
 
         n_train_samples = len(train_vectors)
+        self.capacity = int(self.capacity_frac * n_train_samples)
         if n_train_samples <= self.capacity:
             self.index.add(train_vectors)
             self.labels = train_labels
